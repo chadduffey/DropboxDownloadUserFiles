@@ -5,7 +5,7 @@ import requests
 
 import os
 
-token = 'Bearer 5POVRTzm3ZAAAAAAAAAAZMnqFxKAvWnGi7rRdn4n3BFHcabNWHZsqeeBEruZsGnC'
+token = 'Bearer 5Ptoken'
 
 
 gbl_file_success = 0
