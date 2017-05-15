@@ -1,10 +1,12 @@
+import dropbox
+
 import json
 import sys
 import requests
 
 import os
 
-token = 'Bearer ' + os.environ['DB_TOKEN']
+token = os.environ['DB_TOKEN']
 
 
 
@@ -34,22 +36,6 @@ def menu_screen():
 		except:
 			pass
 	return choice
-
-
-def getAllDfBUsers():
-	try:
-		request = urllib2.Request('https://api.dropbox.com/1/team/members/list')
-		request.add_header('Content-type', 'application/json')
-		request.add_header('Authorization', token)
-		body = str('{}')
-		request.add_data(body)
-		response = urllib2.urlopen(request)
-		data = response.read()
-		converted_data = json.loads(data)
-		allmembers = [item["profile"] for item in converted_data["members"]]
-		return allmembers
-	except:
-		return "Error in getAllDfBUsers()"
 
 
 def getMemberIdFromEmail(all_members, email_to_find):
@@ -167,35 +153,37 @@ os.system('cls' if os.name == 'nt' else 'clear')
 
 if __name__ == "__main__":
 
-	if True:
-		print(token)
+	try:
+		dbx = dropbox.DropboxTeam(token)
+		dbx.team_get_info()
+	except:
+		print("Unable to initialize Dropbox client. Did you remember to add DB_TOKEN environment variable?")
+		exit()
+
+	if len(sys.argv) == 2:
+		
+		# [-] Obtain the full member listing
+		all_members = dbx.team_members_list()
+		print(all_members)
 		'''
-		if len(sys.argv) == 2:
-			
-			# [-] Obtain the full member listing
-			all_members = getAllDfBUsers()
-			if all_members == "Error in getAllDfBUsers()":
-				print all_members
-				sys.exit()
+		# [-] Locate the specified user
+		target_user = getMemberIdFromEmail(all_members, sys.argv[1])
+		if target_user == "not_found":
+			print "Error in getMemberIdFromEmail(), User: " + target_user
+			sys.exit()
 
-			# [-] Locate the specified user
-			target_user = getMemberIdFromEmail(all_members, sys.argv[1])
-			if target_user == "not_found":
-				print "Error in getMemberIdFromEmail(), User: " + target_user
-				sys.exit()
+		choice = menu_screen()
+		# [Option 1] Promt the user to list out the files of the user:
+		if choice == 1:
+			print "Listing files for " + target_user["email"]
+			printFileList('/', target_user["member_id"])
 
-			choice = menu_screen()
-			# [Option 1] Promt the user to list out the files of the user:
-			if choice == 1:
-				print "Listing files for " + target_user["email"]
-				printFileList('/', target_user["member_id"])
-
-			# [Option 2] Create a directory and dump the files if the user says yes
-			if choice == 2:
-				print "Saving files for " + target_user["email"]
-				saveFiles(target_user["email"], target_user["member_id"], "/")
-				finalOutput()
-			'''
+		# [Option 2] Create a directory and dump the files if the user says yes
+		if choice == 2:
+			print "Saving files for " + target_user["email"]
+			saveFiles(target_user["email"], target_user["member_id"], "/")
+			finalOutput()
+		'''
 	else:
 		argument_error()
 
