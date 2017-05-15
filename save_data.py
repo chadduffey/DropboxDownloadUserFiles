@@ -1,11 +1,12 @@
 import json
 import sys
-#import urllib2
 import requests
 
 import os
 
 token = 'Bearer ' + os.environ['DB_TOKEN']
+
+
 
 
 gbl_file_success = 0

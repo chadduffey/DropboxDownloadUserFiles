@@ -1,3 +1,10 @@
+Add local environment variable:
+--------------------------------------
+export DB_TOKEN=5POTOKzm3ZAAAAAAAHVxG
+
+
+set up local
+--------------------------------------
 virtualenv -p python3 venv
 source venv/bin/activate
 pip install -r requirements. txt
