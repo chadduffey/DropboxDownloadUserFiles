@@ -1,9 +1,12 @@
 # The existing script was for DBX for Business. Creating single DBX export. 
 
 import dropbox
+import os.path
+
+from os import path
 
 token_file = "token.txt"
-
+save_location = "junk"
 
 def get_token():
 	token = ""
@@ -18,17 +21,32 @@ def confirm_api():
 
 
 def list_folder(folder=''):
-	for entry in dbx.files_list_folder(folder).entries:
-		print(entry.name)
+	folder_list = dbx.files_list_folder(folder).entries
+	for entry in folder_list:
+		if type(entry) is dropbox.files.FolderMetadata:
+			print("/{}".format(entry.name))
+		elif type(entry) is dropbox.files.FileMetadata:
+			print("..{}".format(entry.name))
+	return folder_list
+
 
 def save_file(dbx_path, local_path):
-	local_file = open(local_path, 'w')
+	local_file = open(local_path, 'wb')
 	metadata, f = dbx.files_download(dbx_path)
 	local_file.write(f.content)
 	local_file.close()
 
 
+def save_all_files(folder=""):
+	content_list = list_folder(folder)
+	for item in content_list:
+		if type(item) is dropbox.files.FileMetadata and item.is_downloadable:
+			if not path.exists(save_location + item.path_lower):
+				print("Downloading {}".format(item.name))
+				save_file(item.path_lower, save_location + item.path_lower)	
+
+
 dbx = dropbox.Dropbox(get_token())
 confirm_api()
 list_folder()
-# {not ready} save_file("badchars.PNG", "junk/badchars.PNG")
+save_all_files()
