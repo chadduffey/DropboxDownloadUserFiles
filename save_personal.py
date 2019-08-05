@@ -20,13 +20,15 @@ def confirm_api():
 	print("Logged in to account: {}".format(current.name.display_name))
 
 
-def list_folder(folder=''):
+def list_folder(folder='', recursive=False):
 	folder_list = dbx.files_list_folder(folder).entries
 	for entry in folder_list:
 		if type(entry) is dropbox.files.FolderMetadata:
-			print("/{}".format(entry.name))
+			print("{}".format(entry.path_lower))
+			if recursive:
+				list_folder(folder=entry.path_lower, recursive=recursive)
 		elif type(entry) is dropbox.files.FileMetadata:
-			print("..{} [{}]".format(entry.name, entry.content_hash))
+			print("{} [{}]".format(entry.path_lower, entry.content_hash))
 	return folder_list
 
 
@@ -48,5 +50,5 @@ def save_all_files(folder=""):
 
 dbx = dropbox.Dropbox(get_token())
 confirm_api()
-list_folder()
+list_folder(recursive=True)
 save_all_files()
