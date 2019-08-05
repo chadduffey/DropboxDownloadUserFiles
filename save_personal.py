@@ -26,7 +26,7 @@ def list_folder(folder=''):
 		if type(entry) is dropbox.files.FolderMetadata:
 			print("/{}".format(entry.name))
 		elif type(entry) is dropbox.files.FileMetadata:
-			print("..{}".format(entry.name))
+			print("..{} [{}]".format(entry.name, entry.content_hash))
 	return folder_list
 
 
